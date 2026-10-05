@@ -14,3 +14,16 @@ def training_message(trainings):
 print(training_message(0))
 print(training_message(3))
 print(training_message(7))
+def handle_command(command):
+    if command == "/start":
+        return "Привет! Я твой Football Progress Bot."
+    if command == "/help":
+        return "Команды: /start, /help, /stats."
+    if command == "/stats":
+        return "Тренировок пока нет."
+    return "Я пока не знаю эту команду."
+
+
+print(handle_command("/start"))
+print(handle_command("/stats"))
+print(handle_command("/unknown"))
