@@ -75,6 +75,30 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
+async def add(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    args = context.args
+
+    if not args:
+        await update.message.reply_text(
+            "Пожалуйста, укажи число повторений.\n"
+            "Пример: /add 30"
+        )
+        return
+
+    try:
+        count = int(args[0])
+    except ValueError:
+        await update.message.reply_text(
+            f"«{args[0]}» — это не число.\n"
+            "Пример правильной команды: /add 30"
+        )
+        return
+
+    await update.message.reply_text(
+        f"Тренировка добавлена: {count} повторений"
+    )
+
+
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     print("ОШИБКА:")
     print(context.error)
