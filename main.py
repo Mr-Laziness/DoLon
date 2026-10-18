@@ -20,6 +20,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+user_trainings = {}
 
 if not TOKEN:
     raise ValueError(
@@ -94,8 +95,17 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
         return
 
+       # Всё, что ниже - это уже после проверки try/except
+    user_id = update.effective_user.id
+    
+    if user_id not in user_trainings:
+        user_trainings[user_id] = []
+        
+    user_trainings[user_id].append(count)
+
     await update.message.reply_text(
-        f"Тренировка добавлена: {count} повторений"
+        f"Тренировка добавлена: {count} повторений.\n"
+        f"Всего в памяти: {len(user_trainings[user_id])} шт."
     )
 
 
