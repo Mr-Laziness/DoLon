@@ -58,11 +58,22 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     print("Получена команда /stats")
+    user_id = update.effective_user.id
+    trainings = user_trainings.get(user_id, [])
+    
+    if not trainings:
+        await update.message.reply_text(
+            "📊 У тебя пока нет записанных тренировок.\n"
+            "Добавь первую: /add 30"
+        )
+        return
 
+    total_count = sum(trainings)
+    
     await update.message.reply_text(
-        "📊 Твоя статистика\n\n"
-        "Тренировок пока нет.\n"
-        "Следующим шагом мы добавим команду для их записи."
+        f"📊 Твоя статистика:\n\n"
+        f"Тренировок записано: {len(trainings)}\n"
+        f"Всего повторений: {total_count}"
     )
 
 
