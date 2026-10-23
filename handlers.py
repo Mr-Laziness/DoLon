@@ -33,6 +33,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     print("Получена команда /stats")
+    raise Exception("Тестовая ошибка, чтобы проверить error_handler")
     user_id = update.effective_user.id
     trainings = user_trainings.get(user_id, [])
 
