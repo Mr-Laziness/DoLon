@@ -18,6 +18,7 @@ from handlers import (
     echo,
     error_handler,
 )
+from database import init_db
 
 logging.basicConfig(
     format="%(asctime)s — %(name)s — %(levelname)s — %(message)s",
@@ -28,6 +29,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 
 def main() -> None:
+    init_db()
     app = Application.builder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))

@@ -2,8 +2,7 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes
 
-user_trainings = {}
-
+from database import add_training, get_user_trainings
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_name = update.effective_user.first_name
@@ -17,7 +16,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Напиши /help, чтобы увидеть команды."
     )
 
-
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     print("Получена команда /help")
 
@@ -30,12 +28,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "и я повторю его."
     )
 
-
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     print("Получена команда /stats")
     user_id = update.effective_user.id
-    trainings = user_trainings.get(user_id, [])
-
+    trainings = get_user_trainings(user_id)
+    
     if not trainings:
         await update.message.reply_text(
             "📊 У тебя пока нет записанных тренировок.\n"
@@ -44,13 +41,12 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     total_count = sum(trainings)
-
+    
     await update.message.reply_text(
         f"📊 Твоя статистика:\n\n"
         f"Тренировок записано: {len(trainings)}\n"
         f"Всего повторений: {total_count}"
     )
-
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text = update.message.text
@@ -60,7 +56,6 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         f"Ты написал:\n{text}"
     )
-
 
 async def add(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     args = context.args
@@ -82,18 +77,20 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     user_id = update.effective_user.id
-
-    if user_id not in user_trainings:
-        user_trainings[user_id] = []
-
-    user_trainings[user_id].append(count)
+    
+    # Вместо работы с памятью - сохраняем в базу данных!
+    add_training(user_id, count)
 
     await update.message.reply_text(
         f"Тренировка добавлена: {count} повторений.\n"
-        f"Всего в памяти: {len(user_trainings[user_id])} шт."
+        f"Всего в памяти: {len(get_user_trainings(user_id))} шт."
     )
 
-
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-    print("ОШИБКА:")
-    print(context.error)
+    logging.error("Ошибка при обработке запроса:", exc_info=context.error)
+
+    if isinstance(update, Update) and update.effective_message:
+        await update.effective_message.reply_text(
+            "⚠️ Упс! Что-то пошло не так при обработке твоего запроса.\n"
+            "Попробуй еще раз или напиши /help."
+        )
